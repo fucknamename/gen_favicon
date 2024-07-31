@@ -1,0 +1,78 @@
+package main
+
+import (
+    "golang.org/x/image/font/opentype"
+    "golang.org/x/image/font"
+    "image"
+    "image/color"
+    "image/draw"
+    "image/png"
+    "log"
+    "os"
+
+    "github.com/Kodeworks/golang-image-ico"
+    "golang.org/x/image/math/fixed"
+    "io/ioutil"
+)
+
+func main() {
+    const width, height = 32, 32
+    img := image.NewRGBA(image.Rect(0, 0, width, height))
+
+    // 设置背景颜色为白色
+    draw.Draw(img, img.Bounds(), &image.Uniform{color.White}, image.Point{}, draw.Src)
+
+    // 加载字体文件
+    fontBytes, err := ioutil.ReadFile("/path/to/your/font.ttf")
+    if err != nil {
+        log.Fatalf("failed to read font file: %v", err)
+    }
+
+    f, err := opentype.Parse(fontBytes)
+    if err != nil {
+        log.Fatalf("failed to parse font: %v", err)
+    }
+
+    // 创建字体面并设置大小
+    face, err := opentype.NewFace(f, &opentype.FaceOptions{
+        Size:    20,
+        DPI:     72,
+        Hinting: font.HintingFull,
+    })
+    if err != nil {
+        log.Fatalf("failed to create font face: %v", err)
+    }
+
+    // 设置字体绘制器
+    col := color.Black // 设置字体颜色为黑色
+    d := &font.Drawer{
+        Dst:  img,
+        Src:  image.NewUniform(col),
+        Face: face,
+        Dot:  fixed.P(4, 24),
+    }
+
+    // 绘制文字
+    d.DrawString("Go")
+
+    // 将图像保存为 PNG 文件（用于调试）
+    file, err := os.Create("output.png")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer file.Close()
+    if err := png.Encode(file, img); err != nil {
+        log.Fatal(err)
+    }
+
+    // 创建并写入 ICO 文件
+    icoFile, err := os.Create("favicon.ico")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer icoFile.Close()
+
+    if err := ico.Encode(icoFile, img); err != nil {
+        log.Fatal(err)
+    }
+}

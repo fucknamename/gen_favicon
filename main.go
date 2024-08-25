@@ -26,7 +26,7 @@ func main() {
 	// 设置背景颜色为白色
 	draw.Draw(img, img.Bounds(), &image.Uniform{color.White}, image.Point{}, draw.Src)
 
-	// 加载字体文件
+	// 加载字体文件(如果要嵌入字体, 参考另一个项目: https://github.com/fucknamename/gen_logo)
 	fontBytes, err := os.ReadFile("./ZiHunDaHei.ttf")
 	if err != nil {
 		log.Fatalf("failed to read font file: %v", err)
